@@ -8,6 +8,7 @@ class CreateSportsGear(BaseModel):
     name: str = Field(min_length=5)
     sport: Optional[str]
     available_count: int
+    rent_per_day: float
     class Config:
         orm_mode = True
 
@@ -16,6 +17,7 @@ class UpdateSportsGear(BaseModel):
     name: Optional[str] = None
     sport: Optional[str] = None
     available_count: Optional[int] = None
+    rent_per_day: Optional[float] = None
     class Config:
         orm_mode = True
 
@@ -23,6 +25,7 @@ class ListSportsGear(BaseModel):
     name: Optional[str] = None
     sport: Optional[str] = None
     available_count: Optional[int] = None
+    rent_per_day: Optional[float] = None
     time_created: datetime
     id: Optional[int] = None
     class Config:
