@@ -1,5 +1,6 @@
 # build a schema using pydantic
-from pydantic import BaseModel, Field, EmailStr, root_validator
+import pytz
+from pydantic import BaseModel, Field, EmailStr, root_validator, validator
 from datetime import datetime
 from typing import Optional
 
@@ -26,10 +27,26 @@ class ListSportsGear(BaseModel):
     sport: Optional[str] = None
     available_count: Optional[int] = None
     rent_per_day: Optional[float] = None
-    time_created: datetime
+    time_created: str
     id: Optional[int] = None
     class Config:
         orm_mode = True
+
+    @validator("time_created", pre=True, always=True)
+    def convert_to_indian_time(cls, value):
+        # Define the UTC and IST time zones
+        utc_timezone = pytz.timezone("UTC")
+        ist_timezone = pytz.timezone("Asia/Kolkata")  # Use the appropriate time zone
+
+        if value.tzinfo is None or value.tzinfo.utcoffset(value) is None:
+            # Assuming the input is in UTC, if it has no timezone information
+            value = utc_timezone.localize(value)
+
+        # Convert the time_created to IST
+        value = value.astimezone(ist_timezone)
+        formatted_time = value.strftime("%d-%m-%y %H:%M:%S")
+
+        return formatted_time
 
 class ListUser(BaseModel):
     name:str 
@@ -58,4 +75,13 @@ class CreateUser(BaseModel):
         if password != confirm_password:
             raise ValueError("The two passwords did not match.")
         return values
-        
+
+class UpdateUser(BaseModel):
+    name: Optional[str] = None
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
+
+
+class RentSportsGear(BaseModel):
+    item_count: int
+    rental_duration: int

@@ -43,8 +43,25 @@ class UserRental(Base):
     user_requested_duration_in_days  = Column(Integer, nullable=False)
     rental_started = Column(DateTime(timezone=True), server_default=func.now())
     rental_end_date = Column(DateTime(timezone=True), onupdate=func.now())
-    total_rent = Column(Float, nullable=False)
+    total_rent = Column(Float)
     created_by = relationship('User')
     sports_gear = relationship('SportsGear')
+
+    def serialize(self):
+        rental_data = {
+            'id': self.id,
+            'user_name': self.created_by.name,
+            'user_id': self.user_id,
+            'user_email': self.created_by.email,
+            'sports_gear_id': self.sports_gear_id,
+            'sports_gear_name': self.sports_gear.name,
+            'rented_sports_gear_count': self.rented_sports_gear_count,
+            'user_requested_duration_in_days': self.user_requested_duration_in_days,
+            'rental_started': self.rental_started
+        }
+        if self.rental_end_date:
+            rental_data['rental_end_date'] = self.rental_end_date
+            rental_data['total_rent'] = self.total_rent
+        return rental_data
 
 
